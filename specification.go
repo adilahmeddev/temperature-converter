@@ -6,8 +6,8 @@ import (
 )
 
 type TempConverter interface {
-	ConvertToF(celsius float64) float64
-	ConvertToC(fah float64) float64
+	ConvertToF(celsius float64) (float64, error)
+	ConvertToC(fah float64) (float64, error)
 }
 
 func ConverterSpecification(t *testing.T, magicBox TempConverter) {
@@ -15,7 +15,8 @@ func ConverterSpecification(t *testing.T, magicBox TempConverter) {
 		t.Run("0", func(t *testing.T) {
 			celsius := 0.0
 
-			fah := magicBox.ConvertToF(celsius)
+			fah, err := magicBox.ConvertToF(celsius)
+			assert.NoError(t, err)
 
 			assert.Equal(t, fah, 32)
 
@@ -23,7 +24,8 @@ func ConverterSpecification(t *testing.T, magicBox TempConverter) {
 		t.Run("15", func(t *testing.T) {
 			celsius := 15.0
 
-			fah := magicBox.ConvertToF(celsius)
+			fah, err := magicBox.ConvertToF(celsius)
+			assert.NoError(t, err)
 
 			assert.Equal(t, fah, 59)
 		})
@@ -32,7 +34,8 @@ func ConverterSpecification(t *testing.T, magicBox TempConverter) {
 		t.Skip()
 		fah := 32.0
 
-		celsius := magicBox.ConvertToC(fah)
+		celsius, err := magicBox.ConvertToC(fah)
+		assert.NoError(t, err)
 
 		if celsius != 0 {
 			t.Errorf("%v is not 0", celsius)

@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"excercise4"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 )
@@ -23,7 +24,10 @@ func main() {
 			panic(err)
 		}
 
-		f := excercise4.Converter{}.ConvertToF(celsius)
+		f, err := excercise4.Converter{}.ConvertToF(celsius)
+		if err != nil {
+			log.Fatal(err)
+		}
 		fmt.Printf("%.2f", f)
 
 	} else if choice == "f" {

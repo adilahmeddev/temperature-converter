@@ -17,39 +17,39 @@ type Driver struct {
 	path string
 }
 
-func (d Driver) ConvertToF(celsius float64) float64 {
+func (d Driver) ConvertToF(celsius float64) (float64, error) {
 	out := bytes.Buffer{}
 
 	command := exec.Command(d.path)
 	stdinPipe, err := command.StdinPipe()
 	if err != nil {
-		panic(err)
+		return 0, err
 	}
 	command.Stdout = &out
 	err = command.Start()
 
 	_, err = fmt.Fprint(stdinPipe, "c\n")
 	if err != nil {
-		panic(err)
+		return 0, err
 	}
 
 	_, err = fmt.Fprintf(stdinPipe, "%.2f\n", celsius)
 	if err != nil {
-		panic(err)
+		return 0, err
 	}
 
 	err = command.Wait()
 	if err != nil {
-		panic(err)
+		return 0, err
 	}
 	float, err := strconv.ParseFloat(out.String(), 64)
 	if err != nil {
-		panic(err)
+		return 0, err
 	}
-	return float
+	return float, nil
 }
 
-func (d Driver) ConvertToC(fah float64) float64 {
+func (d Driver) ConvertToC(fah float64) (float64, error) {
 	//TODO implement me
 	panic("implement me")
 }
