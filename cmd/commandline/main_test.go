@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strconv"
+	"strings"
 	"testing"
 )
 
@@ -18,14 +19,14 @@ type Driver struct {
 }
 
 func (d Driver) ConvertToF(celsius float64) (float64, error) {
-	out := bytes.Buffer{}
+	out := &bytes.Buffer{}
 
 	command := exec.Command(d.path)
 	stdinPipe, err := command.StdinPipe()
 	if err != nil {
 		return 0, err
 	}
-	command.Stdout = &out
+	command.Stdout = out
 	err = command.Start()
 
 	_, err = fmt.Fprint(stdinPipe, "c\n")
@@ -39,13 +40,18 @@ func (d Driver) ConvertToF(celsius float64) (float64, error) {
 	}
 
 	err = command.Wait()
+
+	lines := strings.Split(out.String(), "\n")
+	fah := lines[len(lines)-1]
+
 	if err != nil {
 		return 0, err
 	}
-	float, err := strconv.ParseFloat(out.String(), 64)
+	float, err := strconv.ParseFloat(fah, 64)
 	if err != nil {
 		return 0, err
 	}
+
 	return float, nil
 }
 

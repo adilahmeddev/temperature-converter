@@ -4,19 +4,24 @@ import (
 	"bufio"
 	"excercise4"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"strconv"
 )
 
 func main() {
-	//fmt.Println("c or f")
+	Run(os.Stdin, os.Stdout)
+}
 
-	scanner := bufio.NewScanner(os.Stdin)
+func Run(in io.Reader, out io.Writer) {
+	fmt.Fprintf(out, "c or f\n")
+
+	scanner := bufio.NewScanner(in)
 	scanner.Scan()
 	choice := scanner.Text()
 	if choice == "c" {
-		//fmt.Println("temp?")
+		//fmt.Fprint(out, "temp?")
 		scanner.Scan()
 		celsiusStr := scanner.Text()
 		celsius, err := strconv.ParseFloat(celsiusStr, 64)
@@ -28,7 +33,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("%.2f", f)
+		fmt.Fprintf(out, "%.2f", f)
 
 	} else if choice == "f" {
 		panic("")
