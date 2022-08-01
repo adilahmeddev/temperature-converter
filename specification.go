@@ -37,8 +37,6 @@ func ConverterSpecification(t *testing.T, magicBox TempConverter) {
 		celsius, err := magicBox.ConvertToC(fah)
 		assert.NoError(t, err)
 
-		if celsius != 0 {
-			t.Errorf("%v is not 0", celsius)
-		}
+		assert.Equal(t, 0, celsius)
 	})
 }

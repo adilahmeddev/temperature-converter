@@ -5,8 +5,20 @@ import (
 	"excercise4"
 	"excercise4/cmd/httpserver/internal/models"
 	"fmt"
+	"log"
 	"net/http"
 )
+
+func main() {
+	handler := NewTemperatureHandler(excercise4.Converter{})
+
+	server := http.Server{Handler: handler}
+	defer server.Close()
+
+	if err := server.ListenAndServe(); err != nil {
+		log.Fatal(err)
+	}
+}
 
 type TemperatureHandler struct {
 	service excercise4.TempConverter
