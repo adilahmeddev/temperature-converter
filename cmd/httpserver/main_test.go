@@ -4,12 +4,23 @@ import (
 	"bytes"
 	"encoding/json"
 	"excercise4"
-	"fmt"
+	"excercise4/cmd/httpserver/internal/models"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
+
+func TestName(t *testing.T) {
+	handler := NewTemperatureHandler(excercise4.Converter{})
+	server := httptest.NewServer(handler)
+
+	t.Cleanup(server.Close)
+
+	excercise4.ConverterSpecification(t, Driver{
+		server: server,
+	})
+}
 
 type Driver struct {
 	request  io.Reader
@@ -18,7 +29,7 @@ type Driver struct {
 }
 
 func (d Driver) ConvertToF(celsius float64) (float64, error) {
-	marshalledRequest, err := json.Marshal(TemperatureRequest{
+	marshalledRequest, err := json.Marshal(models.TemperatureRequest{
 		ConvertTo: "f",
 		Value:     celsius,
 	})
@@ -36,7 +47,7 @@ func (d Driver) ConvertToF(celsius float64) (float64, error) {
 		return 0, err
 	}
 
-	var response TemperatureResponse
+	var response models.TemperatureResponse
 
 	decoder := json.NewDecoder(r.Body)
 
@@ -51,63 +62,4 @@ func (d Driver) ConvertToF(celsius float64) (float64, error) {
 func (d Driver) ConvertToC(fah float64) (float64, error) {
 	//TODO implement me
 	panic("implement me")
-}
-
-type TemperatureRequest struct {
-	ConvertTo string  `json:"convert_to,omitempty"`
-	Value     float64 `json:"value,omitempty"`
-}
-
-type TemperatureResponse struct {
-	Type  string  `json:"type,omitempty"`
-	Value float64 `json:"value,omitempty"`
-}
-
-type TemperatureHandler struct {
-	service excercise4.TempConverter
-}
-
-func (t TemperatureHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
-	var tRequest TemperatureRequest
-	decoder := json.NewDecoder(request.Body)
-
-	err := decoder.Decode(&tRequest)
-	if err != nil {
-		http.Error(writer, err.Error(), http.StatusBadRequest)
-	}
-
-	if tRequest.ConvertTo == "f" {
-		f, err := t.service.ConvertToF(tRequest.Value)
-		if err != nil {
-			http.Error(writer, err.Error(), http.StatusInternalServerError)
-		}
-
-		response := TemperatureResponse{
-			Type:  "f",
-			Value: f,
-		}
-
-		encoder := json.NewEncoder(writer)
-
-		err = encoder.Encode(response)
-		if err != nil {
-			http.Error(writer, err.Error(), http.StatusInternalServerError)
-		}
-	}
-	http.Error(writer, fmt.Errorf("not implemented").Error(), http.StatusNotImplemented)
-}
-
-func NewTemperatureHandler(service excercise4.TempConverter) *TemperatureHandler {
-	return &TemperatureHandler{service: service}
-}
-
-func TestName(t *testing.T) {
-	handler := NewTemperatureHandler(excercise4.Converter{})
-	server := httptest.NewServer(handler)
-
-	t.Cleanup(server.Close)
-
-	excercise4.ConverterSpecification(t, Driver{
-		server: server,
-	})
 }
